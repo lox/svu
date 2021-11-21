@@ -28,6 +28,7 @@ var (
 	stripPrefix         = app.Flag("strip-prefix", "strips the prefix from the tag").Default("false").Bool()
 	tagMode             = app.Flag("tag-mode", "determines if latest tag of the current or all branches will be used").Default("current-branch").Enum("current-branch", "all-branches")
 	forcePatchIncrement = nextCmd.Flag("force-patch-increment", "forces a patch version increment regardless of the commit message content").Default("false").Bool()
+	printLog            = nextCmd.Flag("print-log", "prints the log messages considered to stderr").Default("false").Bool()
 )
 
 func main() {
@@ -116,6 +117,8 @@ func unsetMetadata(current *semver.Version) *semver.Version {
 func findNext(current *semver.Version, tag string) semver.Version {
 	log, err := git.Changelog(tag)
 	app.FatalIfError(err, "failed to get changelog")
+
+	fmt.Fprintln(os.Stderr, log)
 
 	return svu.FindNext(current, *forcePatchIncrement, log)
 }
